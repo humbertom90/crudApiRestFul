@@ -81,5 +81,72 @@ $app->post('/api/clientes/nuevo', function(Request $request, Response $response)
 	}
 });
 
+//PUT modificar cliente
+$app->put('/api/clientes/modificar/{id}', function(Request $request, Response $response){
+	$id_cliente = $request->getAttribute('id');
+	$nombres = $request->getParam('nombres');
+	$apellidos = $request->getParam('apellidos');
+	$telefono = $request->getParam('telefono');
+	$email = $request->getParam('email');
+	$direccion = $request->getParam('direccion');
+	$ciudad = $request->getParam('ciudad');
+
+	$sql = "UPDATE clientes Set
+			nombres = :nombres,
+			apellidos = :apellidos,
+			telefono = :telefono,
+			email = :email,
+			direccion = :direccion,
+			ciudad = :ciudad
+			Where id = '$id_cliente'";
+	try{
+		$db = new db();
+		$db = $db->conectDB();
+		$resultado = $db->prepare($sql);
+
+		$resultado->bindParam(':nombres', $nombres);
+		$resultado->bindParam(':apellidos', $apellidos);
+		$resultado->bindParam(':telefono', $telefono);
+		$resultado->bindParam(':email', $email);
+		$resultado->bindParam(':direccion', $direccion);
+		$resultado->bindParam(':ciudad', $ciudad);
+
+		$resultado->execute();
+		echo json_encode("Cliente modificado");
+		
+		$resultado = null;
+		$db = null;
+
+	}catch(PDOException $e){
+		echo '{"error" : {"text":'.$e->getMessage().'}';
+	}
+});
+
+
+//DELETE eliminar cliente
+$app->delete('/api/clientes/delete/{id}', function(Request $request, Response $response){
+	$id_cliente = $request->getAttribute('id');
+
+	$sql = "DELETE FROM clientes Where id = '$id_cliente'";
+	try{
+		$db = new db();
+		$db = $db->conectDB();
+		$resultado = $db->prepare($sql);
+		$resultado->execute();
+
+		if ($resultado->rowCount() > 0){
+			echo json_encode("Cliente eliminado");
+		}else{
+			echo json_encode("No se encuentra un cliente con ese id");
+		}
+		
+		$resultado = null;
+		$db = null;
+
+	}catch(PDOException $e){
+		echo '{"error" : {"text":'.$e->getMessage().'}';
+	}
+});
+
 
 
